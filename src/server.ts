@@ -1,30 +1,21 @@
+import 'dotenv/config'
 import express, { Request, Express, Response } from 'express';
+import { writeRequestCodeData } from './services/firebase/db-realtime/request-code';
+// middleware
 import { json } from 'body-parser';
-
-// Import your event listeners
-// import './listeners/UserListeners';
-// import './listeners/PostListeners';
-
-// Import your routers
-// import { userRouter } from './routes/userRoutes';
-// import { postRouter } from './routes/postRoutes';
+import { errorHandler } from './middleware/error-handler';
+import { useCors } from './middleware/cors';
 
 const app: Express = express();
 app.use(json());
+app.use(useCors);
+app.use(errorHandler);
 
-// Set up your routes
-// app.use('/users', userRouter);
-// app.use('/posts', postRouter);
-
-// Default error handling middleware
-app.use((err: Error, req: Request, res: Response, next: Function) => {
-  console.error(err);
-  res.status(500).send({ message: err.message });
-});
-
-// 404 handler
-app.use('*', (req: Request, res: Response) => {
-  res.status(404).send({ message: 'Not Found' });
+app.post('/request-code', async (req: any, res:any) => {
+  await writeRequestCodeData({
+    email: req.body.email
+  });
+  await res.end();
 });
 
 const port = process.env.PORT || 3000;
